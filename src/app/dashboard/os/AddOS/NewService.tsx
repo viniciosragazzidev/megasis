@@ -34,7 +34,7 @@ interface FormData {
   id: string;
   nome: string;
   contato: number[];
-  equipamento: Equipamento;
+  equipamentos: Equipamento[];
 
   tecnico: string;
   valorTec: number;
@@ -44,20 +44,22 @@ interface FormData {
   descricao: string;
   acessorios: string;
 }
+
+const equipamentoSchema = z.object({
+  nomeEq: z
+    .string()
+    .min(2, "Nome do Equipamento deve ter pelo menos 2 caracteres"),
+  marcaEq: z.string(),
+  modeloEq: z.string(),
+  numeroSerieEq: z.string(),
+});
 // Define Zod schemas for your form fields
 const schema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   contato: z.array(
     z.number().min(5, "Contato deve ter pelo menos 5 caracteres")
   ),
-  equipamento: z.object({
-    nomeEq: z
-      .string()
-      .min(2, "Nome do Equipamento deve ter pelo menos 2 caracteres"),
-    marcaEq: z.string(),
-    modeloEq: z.string(),
-    numeroSerieEq: z.string(),
-  }),
+  equipamentos: z.array(equipamentoSchema.extend({})),
   tecnico: z.string(),
   valorTec: z.number().min(0, "Valor Técnico deve ser no mínimo 0"),
   valorCob: z.number().min(0, "Valor Cobrado deve ser no mínimo 0"),
@@ -76,12 +78,14 @@ const NewService = ({
     id: "",
     nome: "",
     contato: [],
-    equipamento: {
-      nomeEq: "",
-      modeloEq: "",
-      marcaEq: "",
-      numeroSerieEq: "",
-    },
+    equipamentos: [
+      {
+        nomeEq: "",
+        modeloEq: "",
+        marcaEq: "",
+        numeroSerieEq: "",
+      },
+    ],
     tecnico: "",
     valorTec: 0,
     valorCob: 0,
@@ -118,12 +122,17 @@ const NewService = ({
       name === "modeloEq" ||
       name === "nomeEq"
     ) {
+      const copyFormDataEquipamentos = [...formData.equipamentos];
+      const indexA: number = Number(index);
+      copyFormDataEquipamentos[indexA] = {
+        ...copyFormDataEquipamentos[indexA],
+        [name]: value,
+      };
+      console.log(copyFormDataEquipamentos);
+
       setFormData((prevFormData) => ({
         ...prevFormData,
-        equipamento: {
-          ...prevFormData.equipamento,
-          [name]: value,
-        },
+        equipamentos: copyFormDataEquipamentos,
       }));
     }
 
@@ -189,12 +198,14 @@ const NewService = ({
         id: "",
         nome: "",
         contato: [0],
-        equipamento: {
-          nomeEq: "",
-          modeloEq: "",
-          marcaEq: "",
-          numeroSerieEq: "",
-        },
+        equipamentos: [
+          {
+            nomeEq: "",
+            modeloEq: "",
+            marcaEq: "",
+            numeroSerieEq: "",
+          },
+        ],
         tecnico: "",
         valorTec: 0,
         valorCob: 0,
@@ -204,6 +215,7 @@ const NewService = ({
         acessorios: "",
       });
     } else {
+      console.log(validationResult.error.flatten());
       setErrors(validationResult.error.flatten()); // Use o método flatten para obter os erros em um objeto
       toast({
         title: "Ops! 🚫",
@@ -292,56 +304,68 @@ const NewService = ({
 
           <div className="flex flex-col gap-2">
             <h1 className="text-lg font-semibold "> Equipamento</h1>
-            <div className="inputArea grid grid-cols-2 max-sm:grid-cols-1 gap-4">
-              <div className=" flex flex-1 flex-col gap-2">
-                <label htmlFor="nome" className="text-gray-400 text-sm">
-                  Nome do Equipamento
-                </label>
-                <Input
-                  name="nomeEq"
-                  className=""
-                  value={formData.equipamento.nomeEq}
-                  onChange={handleInputChange}
-                  placeholder=""
-                />
-              </div>
-              <div className=" flex flex-1 flex-col gap-2">
-                <label htmlFor="nome" className="text-gray-400 text-sm">
-                  Marca
-                </label>
-                <Input
-                  name="marcaEq"
-                  className=""
-                  value={formData.equipamento.marcaEq}
-                  onChange={handleInputChange}
-                  placeholder=""
-                />
-              </div>
-              <div className=" flex flex-1 flex-col gap-2">
-                <label htmlFor="nome" className="text-gray-400 text-sm">
-                  Modelo
-                </label>
-                <Input
-                  name="modeloEq"
-                  className=""
-                  value={formData.equipamento.modeloEq}
-                  onChange={handleInputChange}
-                  placeholder=""
-                />
-              </div>
-              <div className=" flex flex-1 flex-col gap-2">
-                <label htmlFor="nome" className="text-gray-400 text-sm">
-                  Numero de Série
-                </label>
-                <Input
-                  name="numeroSerieEq"
-                  className=""
-                  value={formData.equipamento.numeroSerieEq}
-                  onChange={handleInputChange}
-                  placeholder=""
-                />
-              </div>
-            </div>
+            {formData.equipamentos.map((equipamento, index) => (
+              <>
+                <div className="inputArea grid grid-cols-2 max-sm:grid-cols-1 gap-4">
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Nome do Equipamento
+                    </label>
+                    <Input
+                      name="nomeEq"
+                      className=""
+                      value={formData.equipamentos[index].nomeEq}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      placeholder=""
+                    />
+                  </div>
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Marca
+                    </label>
+                    <Input
+                      name="marcaEq"
+                      className=""
+                      value={formData.equipamentos[index].marcaEq}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      placeholder=""
+                    />
+                  </div>
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Modelo
+                    </label>
+                    <Input
+                      name="modeloEq"
+                      className=""
+                      value={formData.equipamentos[index].modeloEq}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      placeholder=""
+                    />
+                  </div>
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Numero de Série
+                    </label>
+                    <Input
+                      name="numeroSerieEq"
+                      className=""
+                      value={formData.equipamentos[index].numeroSerieEq}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      placeholder=""
+                    />
+                  </div>
+                </div>
+              </>
+            ))}
           </div>
           <div className="inputArea grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
             <div className=" flex flex-1 flex-col gap-2">
