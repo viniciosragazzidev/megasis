@@ -36,25 +36,25 @@ const Header = () => {
     });
     setNavigation(navigationCopy);
   };
-  let path = window.location.pathname;
-  const [pathName, setPathName] = useState<null | string>(null);
-  useEffect(() => {
-    if (!pathName) {
-      if (path === "/dashboard/financeiro") {
-        handleSwitchActiveMenu("Financeiro");
-      }
-      if (path === "/dashboard/os") {
-        handleSwitchActiveMenu("Ordens de Serviços");
-      }
-      if (path === "/dashboard/estoque") {
-        handleSwitchActiveMenu("Estoque");
-      }
-      if (path === "/dashboard") {
-        handleSwitchActiveMenu("Dashboard");
-      }
-      setPathName(path);
-    }
-  }, [path]);
+  // let path = window.location.pathname;
+  // const [pathName, setPathName] = useState<null | string>(null);
+  // useEffect(() => {
+  //   if (!pathName) {
+  //     if (path === "/dashboard/financeiro") {
+  //       handleSwitchActiveMenu("Financeiro");
+  //     }
+  //     if (path === "/dashboard/os") {
+  //       handleSwitchActiveMenu("Ordens de Serviços");
+  //     }
+  //     if (path === "/dashboard/estoque") {
+  //       handleSwitchActiveMenu("Estoque");
+  //     }
+  //     if (path === "/dashboard") {
+  //       handleSwitchActiveMenu("Dashboard");
+  //     }
+  //     setPathName(path);
+  //   }
+  // }, [path]);
   return (
     <>
       <Disclosure as="nav" className="bg-dark-bg-lv1">

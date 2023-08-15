@@ -29,13 +29,6 @@ interface Equipamento {
   modeloEq: string;
   marcaEq: string;
   numeroSerieEq: string;
-}
-interface FormData {
-  id: string;
-  nome: string;
-  contato: number[];
-  equipamentos: Equipamento[];
-
   tecnico: string;
   valorTec: number;
   valorCob: number;
@@ -43,6 +36,12 @@ interface FormData {
   imagem: File | null;
   descricao: string;
   acessorios: string;
+}
+interface FormData {
+  id: string;
+  nome: string;
+  contato: number[];
+  equipamentos: Equipamento[];
 }
 
 const equipamentoSchema = z.object({
@@ -52,6 +51,12 @@ const equipamentoSchema = z.object({
   marcaEq: z.string(),
   modeloEq: z.string(),
   numeroSerieEq: z.string(),
+  tecnico: z.string(),
+  valorTec: z.number().min(0, "Valor Técnico deve ser no mínimo 0"),
+  valorCob: z.number().min(0, "Valor Cobrado deve ser no mínimo 0"),
+  status: z.string(),
+  acessorios: z.string(),
+  descricao: z.string(),
 });
 // Define Zod schemas for your form fields
 const schema = z.object({
@@ -60,12 +65,6 @@ const schema = z.object({
     z.number().min(5, "Contato deve ter pelo menos 5 caracteres")
   ),
   equipamentos: z.array(equipamentoSchema.extend({})),
-  tecnico: z.string(),
-  valorTec: z.number().min(0, "Valor Técnico deve ser no mínimo 0"),
-  valorCob: z.number().min(0, "Valor Cobrado deve ser no mínimo 0"),
-  status: z.string(),
-  acessorios: z.string(),
-  descricao: z.string(),
 });
 const NewService = ({
   isOpen,
@@ -84,15 +83,15 @@ const NewService = ({
         modeloEq: "",
         marcaEq: "",
         numeroSerieEq: "",
+        tecnico: "",
+        valorTec: 0,
+        valorCob: 0,
+        status: "",
+        imagem: null,
+        descricao: "",
+        acessorios: "",
       },
     ],
-    tecnico: "",
-    valorTec: 0,
-    valorCob: 0,
-    status: "",
-    imagem: null,
-    descricao: "",
-    acessorios: "",
   });
 
   const [errors, setErrors] = useState({}); // Inicialize sem erros
@@ -104,13 +103,7 @@ const NewService = ({
     index?: number
   ) => {
     const { name, value } = event.target;
-    if (
-      name != "numeroSerieEq" &&
-      name != "marcaEq" &&
-      name != "modeloEq" &&
-      name != "nomeEq" &&
-      name != "contato"
-    ) {
+    if (name === "nome") {
       setFormData((prevFormData) => ({
         ...prevFormData,
         [name]: value,
@@ -120,7 +113,14 @@ const NewService = ({
       name === "numeroSerieEq" ||
       name === "marcaEq" ||
       name === "modeloEq" ||
-      name === "nomeEq"
+      name === "nomeEq" ||
+      name === "valorTec" ||
+      name === "valorCob" ||
+      name === "status" ||
+      name === "imagem" ||
+      name === "descricao" ||
+      name === "acessorios" ||
+      name === "tecnico"
     ) {
       const copyFormDataEquipamentos = [...formData.equipamentos];
       const indexA: number = Number(index);
@@ -173,7 +173,7 @@ const NewService = ({
   };
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const imageFile = event.target.files && event.target.files[0];
-    formData.imagem = imageFile || null;
+    formData.equipamentos[0].imagem = imageFile || null;
   };
   const { toast } = useToast();
 
@@ -181,8 +181,11 @@ const NewService = ({
     event.preventDefault();
     const numericFormData = {
       ...formData,
-      valorTec: Number(formData.valorTec),
-      valorCob: Number(formData.valorCob),
+      equipamentos: formData.equipamentos.map((equipamento) => ({
+        ...equipamento,
+        valorCob: Number(equipamento.valorCob),
+        valorTec: Number(equipamento.valorTec),
+      })),
     };
     const validationResult = schema.safeParse(numericFormData);
 
@@ -197,22 +200,22 @@ const NewService = ({
       setFormData({
         id: "",
         nome: "",
-        contato: [0],
+        contato: [],
         equipamentos: [
           {
             nomeEq: "",
             modeloEq: "",
             marcaEq: "",
             numeroSerieEq: "",
+            tecnico: "",
+            valorTec: 0,
+            valorCob: 0,
+            status: "",
+            imagem: null,
+            descricao: "",
+            acessorios: "",
           },
         ],
-        tecnico: "",
-        valorTec: 0,
-        valorCob: 0,
-        status: "",
-        imagem: null,
-        descricao: "",
-        acessorios: "",
       });
     } else {
       console.log(validationResult.error.flatten());
@@ -303,7 +306,9 @@ const NewService = ({
           <div className="divide w-full h-[1px] opacity-25 bg-slate-700"></div>
 
           <div className="flex flex-col gap-2">
-            <h1 className="text-lg font-semibold "> Equipamento</h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-semibold "> Equipamento</h1>
+            </div>
             {formData.equipamentos.map((equipamento, index) => (
               <>
                 <div className="inputArea grid grid-cols-2 max-sm:grid-cols-1 gap-4">
@@ -364,141 +369,157 @@ const NewService = ({
                     />
                   </div>
                 </div>
-              </>
-            ))}
-          </div>
-          <div className="inputArea grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-            <div className=" flex flex-1 flex-col gap-2">
-              <label htmlFor="nome" className="text-gray-400 text-sm">
-                Técnico
-              </label>
-              <select
-                name="tecnico"
-                id="tecnico"
-                value={formData.tecnico}
-                onChange={handleInputChange}
-                className="bg-transparent border cursor-pointer outline-none border-gray-200 hover:bg-slate-100 hover:text-dark-bg-lv2 transition-all rounded px-2  h-full accent-slate-800"
-              >
-                {tecnicosItens.map((tecnico) => (
-                  <option
-                    className="accent-slate-800 text-light-bg-lv3 bg-dark-bg-lv2 hover:text-dark-bg-lv2 cursor-pointer "
-                    key={tecnico}
-                    value={tecnico}
-                  >
-                    {tecnico}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className=" flex flex-1 flex-col gap-2">
-              <label htmlFor="nome" className="text-gray-400 text-sm">
-                Valor Técnico
-              </label>
-              <Input
-                name="valorTec"
-                className=""
-                value={formData.valorTec}
-                onChange={handleInputChange}
-                placeholder=""
-              />
-            </div>
-            <div className=" flex flex-1 flex-col gap-2">
-              <label htmlFor="nome" className="text-gray-400 text-sm">
-                Valor Cobrado
-              </label>
-              <Input
-                name="valorCob"
-                className=""
-                value={formData.valorCob}
-                onChange={handleInputChange}
-                placeholder=""
-              />
-            </div>
-            <div className=" flex flex-1 flex-col gap-2">
-              <label htmlFor="nome" className="text-gray-400 text-sm">
-                Status
-              </label>
-              <select
-                name="status"
-                id="status"
-                value={formData.status}
-                onChange={handleInputChange}
-                className="bg-transparent border cursor-pointer outline-none border-gray-200 hover:bg-slate-100 hover:text-dark-bg-lv2 transition-all rounded px-2  h-full accent-slate-800"
-              >
-                {statusItens.map((status) => (
-                  <option
-                    className="accent-slate-800 text-light-bg-lv3 bg-dark-bg-lv2 hover:text-dark-bg-lv2 cursor-pointer "
-                    key={status}
-                    value={status}
-                  >
-                    {status}
-                  </option>
-                ))}
-              </select>
+                <div className="inputArea grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Técnico
+                    </label>
+                    <select
+                      name="tecnico"
+                      id="tecnico"
+                      value={formData.equipamentos[index].tecnico}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      className="bg-transparent border cursor-pointer outline-none border-gray-200 hover:bg-slate-100 hover:text-dark-bg-lv2 transition-all rounded px-2  h-full accent-slate-800"
+                    >
+                      {tecnicosItens.map((tecnico) => (
+                        <option
+                          className="accent-slate-800 text-light-bg-lv3 bg-dark-bg-lv2 hover:text-dark-bg-lv2 cursor-pointer "
+                          key={tecnico}
+                          value={tecnico}
+                        >
+                          {tecnico}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Valor Técnico
+                    </label>
+                    <Input
+                      name="valorTec"
+                      className=""
+                      value={formData.equipamentos[index].valorTec}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      placeholder=""
+                    />
+                  </div>
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Valor Cobrado
+                    </label>
+                    <Input
+                      name="valorCob"
+                      className=""
+                      value={formData.equipamentos[index].valorCob}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      placeholder=""
+                    />
+                  </div>
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Status
+                    </label>
+                    <select
+                      name="status"
+                      id="status"
+                      value={formData.equipamentos[index].status}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      className="bg-transparent border cursor-pointer outline-none border-gray-200 hover:bg-slate-100 hover:text-dark-bg-lv2 transition-all rounded px-2  h-full accent-slate-800"
+                    >
+                      {statusItens.map((status) => (
+                        <option
+                          className="accent-slate-800 text-light-bg-lv3 bg-dark-bg-lv2 hover:text-dark-bg-lv2 cursor-pointer "
+                          key={status}
+                          value={status}
+                        >
+                          {status}
+                        </option>
+                      ))}
+                    </select>
 
-              {/* <Input
+                    {/* <Input
                 name="status"
                 value={formData.status}
                 className=""
                 onChange={handleInputChange}
                 placeholder=""
               /> */}
-            </div>
+                  </div>
+                </div>
+
+                <div className="inputArea grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Acessórios
+                    </label>
+                    <Input
+                      name="acessorios"
+                      value={formData.equipamentos[index].acessorios}
+                      onChange={(e) => {
+                        handleInputChange(e, index);
+                      }}
+                      placeholder=""
+                    />
+                  </div>
+                  <div className=" flex flex-1 flex-col gap-2">
+                    <label htmlFor="nome" className="text-gray-400 text-sm">
+                      Data de Entrada
+                    </label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] justify-start text-left font-normal btnPro",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <FaCalendar className="mr-2 h-4 w-4" />
+                          {date ? (
+                            format(date, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <div className=" flex flex-1 flex-col gap-2">
+                  <label htmlFor="nome" className="text-gray-400 text-sm">
+                    Descrição
+                  </label>
+                  <textarea
+                    name="descricao"
+                    id="descricao"
+                    value={formData.equipamentos[index].descricao}
+                    onChange={(e) => {
+                      handleInputChange(e, index);
+                    }}
+                    className="bg-transparent border border-slate-200 focus:border-blue-500 p-2 rounded-md h-40"
+                  />
+                </div>
+              </>
+            ))}
           </div>
 
-          <div className="inputArea grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div className=" flex flex-1 flex-col gap-2">
-              <label htmlFor="nome" className="text-gray-400 text-sm">
-                Acessórios
-              </label>
-              <Input
-                name="acessorios"
-                value={formData.acessorios}
-                className=""
-                onChange={handleInputChange}
-                placeholder=""
-              />
-            </div>
-            <div className=" flex flex-1 flex-col gap-2">
-              <label htmlFor="nome" className="text-gray-400 text-sm">
-                Data de Entrada
-              </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-[240px] justify-start text-left font-normal btnPro",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <FaCalendar className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-          <div className=" flex flex-1 flex-col gap-2">
-            <label htmlFor="nome" className="text-gray-400 text-sm">
-              Descrição
-            </label>
-            <textarea
-              name="descricao"
-              id="descricao"
-              value={formData.descricao}
-              className="bg-transparent border border-slate-200 p-2 rounded-md h-40"
-              onChange={handleInputChange}
-            />
-          </div>
           <div className="flex justify-center">
             <Button type="submit" className=" w-full max-w-[240px] bg-blue-600">
               Enviar

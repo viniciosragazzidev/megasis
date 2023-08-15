@@ -8,11 +8,19 @@ const AddNewService = () => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden"; // Impede o scroll do body
+      document.body.classList.add("overflow-hidden");
+      document.body.classList.remove("overflow-auto");
+
+      console.log("isOpen");
     } else {
       document.body.style.overflow = "auto"; // Habilita o scroll do body
+      document.body.classList.add("overflow-auto");
+      document.body.classList.remove("overflow-hidden");
     }
     return () => {
       document.body.style.overflow = "auto"; // Certifica-se de reverter o estilo ao desmontar o componente
+      document.body.classList.add("overflow-auto");
+      document.body.classList.remove("overflow-hidden");
     };
   }, [isOpen]);
   return (

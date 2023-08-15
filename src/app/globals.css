@@ -5,6 +5,9 @@
 body {
   margin-right: 0 !important;
 }
+body.overflow-hidden {
+  overflow: hidden !important;
+}
 #body {
   margin-right: 0 !important;
 }
@@ -104,4 +107,11 @@ button.btnProChato {
 
 ol li.group {
   border: 1px solid black !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgb(59 130 246) !important;
+  resize: none;
 }
