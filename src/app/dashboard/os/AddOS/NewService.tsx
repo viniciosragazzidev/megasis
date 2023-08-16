@@ -23,24 +23,13 @@ import React, {
   useContext,
   useEffect,
 } from "react";
+import { Equipamento } from "@/app/tools/utils/@types";
 
-interface Equipamento {
-  nomeEq: string;
-  modeloEq: string;
-  marcaEq: string;
-  numeroSerieEq: string;
-  tecnico: string;
-  valorTec: number;
-  valorCob: number;
-  status: string;
-  imagem: File | null;
-  descricao: string;
-  acessorios: string;
-}
 interface FormData {
   id: string;
   nome: string;
   contato: number[];
+
   equipamentos: Equipamento[];
 }
 
@@ -128,7 +117,8 @@ const NewService = ({
         ...copyFormDataEquipamentos[indexA],
         [name]: value,
       };
-      console.log(copyFormDataEquipamentos);
+
+      setEquipamentos(copyFormDataEquipamentos);
 
       setFormData((prevFormData) => ({
         ...prevFormData,
@@ -163,13 +153,64 @@ const NewService = ({
 
   const [contatos, setContatos] = useState<number[]>([0]);
 
-  const handleAddContato = () => {
+  const handleAddMoreContato = () => {
     if (contatos.length < 2) {
       setContatos([Number(formData.contato[0]), 0]);
       formData.contato = [Number(formData.contato[0]), 0];
     } else {
       setContatos([Number(formData.contato[0])]);
     }
+  };
+
+  const [equipamentos, setEquipamentos] = useState<Equipamento[]>([
+    {
+      nomeEq: "",
+      modeloEq: "",
+      marcaEq: "",
+      numeroSerieEq: "",
+      tecnico: "",
+      valorTec: 0,
+      valorCob: 0,
+      status: "",
+      imagem: null,
+      descricao: "",
+      acessorios: "",
+    },
+  ]);
+  const handleAddMoreEquipamento = () => {
+    setEquipamentos([
+      ...equipamentos,
+      {
+        nomeEq: "",
+        modeloEq: "",
+        marcaEq: "",
+        numeroSerieEq: "",
+        tecnico: "",
+        valorTec: 0,
+        valorCob: 0,
+        status: "",
+        imagem: null,
+        descricao: "",
+        acessorios: "",
+      },
+    ]);
+    formData.equipamentos = [
+      ...equipamentos,
+      {
+        nomeEq: "",
+        modeloEq: "",
+        marcaEq: "",
+        numeroSerieEq: "",
+        tecnico: "",
+        valorTec: 0,
+        valorCob: 0,
+        status: "",
+        imagem: null,
+        descricao: "",
+        acessorios: "",
+      },
+    ];
+    console.log(equipamentos);
   };
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const imageFile = event.target.files && event.target.files[0];
@@ -228,8 +269,46 @@ const NewService = ({
   };
   const [date, setDate] = React.useState<Date>();
 
-  useEffect(() => {
+  const reset = () => {
     setContatos([0]);
+    setEquipamentos([
+      {
+        nomeEq: "",
+        modeloEq: "",
+        marcaEq: "",
+        numeroSerieEq: "",
+        tecnico: "",
+        valorTec: 0,
+        valorCob: 0,
+        status: "",
+        imagem: null,
+        descricao: "",
+        acessorios: "",
+      },
+    ]);
+    setFormData({
+      id: "",
+      nome: "",
+      contato: [],
+      equipamentos: [
+        {
+          nomeEq: "",
+          modeloEq: "",
+          marcaEq: "",
+          numeroSerieEq: "",
+          tecnico: "",
+          valorTec: 0,
+          valorCob: 0,
+          status: "",
+          imagem: null,
+          descricao: "",
+          acessorios: "",
+        },
+      ],
+    });
+  };
+  useEffect(() => {
+    reset();
   }, [isOpen]);
 
   const { statusItens, setStatusItens, tecnicosItens, setTecnicosItens } =
@@ -273,14 +352,14 @@ const NewService = ({
                   {contatos.length == 1 ? (
                     <span
                       className="text-sm active:scale-95 transition-all cursor-pointer"
-                      onClick={handleAddContato}
+                      onClick={handleAddMoreContato}
                     >
                       <FaPlus />
                     </span>
                   ) : (
                     <span
                       className="text-sm active:scale-95 transition-all cursor-pointer"
-                      onClick={handleAddContato}
+                      onClick={handleAddMoreContato}
                     >
                       <FaMinus />
                     </span>
@@ -308,6 +387,20 @@ const NewService = ({
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <h1 className="text-lg font-semibold "> Equipamento</h1>
+              <div className="buttonsArea flex items-center gap-2">
+                <div>
+                  {formData.equipamentos.map((equipamento, index) => (
+                    <span key={index}>Item {index + 1}</span>
+                  ))}
+                </div>
+                <Button
+                  onClick={handleAddMoreEquipamento}
+                  type="button"
+                  size="sm"
+                >
+                  <FaPlus />
+                </Button>
+              </div>
             </div>
             {formData.equipamentos.map((equipamento, index) => (
               <>

@@ -12,26 +12,23 @@ import {
   DropdownMenuTrigger,
 } from "@/app/tools/components/ui/dropdown-menu";
 import { FaPlus, FaAngleUp } from "react-icons/fa";
+import { Equipamento } from "@/app/tools/utils/@types";
 
 export type Payment = {
   id: string;
   nome: string;
   contato: string;
-  equipamento: string;
-  modelo: string;
+  nomeEq: string;
+  modeloEq: string;
+  marcaEq: string;
+  numeroSerieEq: string;
   tecnico: string;
   valorTec: number;
   valorCob: number;
-  status:
-    | "Orçamento"
-    | "Orçado"
-    | "Autorizado"
-    | "Iniciado"
-    | "Finalizado"
-    | "Cancelado"
-    | "Aguardando"
-    | "Concluido"
-    | "Entregue";
+  status: string;
+  imagem: File | null;
+  descricao: string;
+  acessorios: string;
 };
 
 export const columns: ColumnDef<Payment>[] = [
@@ -67,7 +64,7 @@ export const columns: ColumnDef<Payment>[] = [
     header: "Contato",
   },
   {
-    accessorKey: "equipamento",
+    accessorKey: `nomeEq`,
     header: ({ column }) => {
       return (
         <Button
@@ -81,8 +78,8 @@ export const columns: ColumnDef<Payment>[] = [
     },
   },
   {
-    accessorKey: "modelo",
-    header: "Marca/Modelo",
+    accessorKey: "modeloEq",
+    header: "Modelo do Equipamento",
   },
   {
     accessorKey: "tecnico",

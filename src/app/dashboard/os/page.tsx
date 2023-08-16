@@ -1,157 +1,79 @@
 import { Payment, columns } from "./columns";
 import { DataTable } from "./data-table";
-async function getData(): Promise<Payment[]> {
+async function getData() {
   // Fetch data from your API here.
 
   return [
     {
       id: "1",
       nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Orçado",
+      contato: "21980534112",
+      equipamentos: [
+        {
+          nomeEq: "Teste",
+          modeloEq: "Teste",
+          marcaEq: "Teste",
+          numeroSerieEq: "Teste",
+          tecnico: "Teste",
+          valorTec: 0,
+          valorCob: 0,
+          status: "Orçamento",
+          imagem: null,
+          descricao: "Teste",
+          acessorios: "Teste",
+        },
+        {
+          nomeEq: "Teste2",
+          modeloEq: "Teste2",
+          marcaEq: "Teste2",
+          numeroSerieEq: "Teste2",
+          tecnico: "Teste2",
+          valorTec: 0,
+          valorCob: 0,
+          status: "Teste2",
+          imagem: null,
+          descricao: "Teste2",
+          acessorios: "Teste2",
+        },
+      ],
     },
     {
-      id: "1",
+      id: "2",
       nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Orçamento",
+      contato: "21980534112",
+      equipamentos: [
+        {
+          nomeEq: "Teste3",
+          modeloEq: "Teste3",
+          marcaEq: "Teste3",
+          numeroSerieEq: "Teste3",
+          tecnico: "Teste3",
+          valorTec: 0,
+          valorCob: 0,
+          status: "Teste3",
+          imagem: null,
+          descricao: "Teste3",
+          acessorios: "Teste3",
+        },
+      ],
     },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Autorizado",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Entregue",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 2",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    {
-      id: "1",
-      nome: "Ana Carolina",
-      contato: "999999999",
-      equipamento: "Equipamento 1",
-      modelo: "Modelo 1",
-      tecnico: "Técnico 1",
-      valorTec: 100,
-      valorCob: 200,
-      status: "Concluido",
-    },
-    // ...
   ];
 }
 const Os = async () => {
-  const data = await getData();
+  const result = await getData();
+  const data = result.map((item) => {
+    const equipamento = item.equipamentos[0];
+    const quantidade = item.equipamentos.length - 1;
+
+    return {
+      id: item.id,
+      nome: item.nome,
+      contato: item.contato,
+      ...equipamento,
+      quantidadeEquipamentosAdicionais: quantidade > 0 ? quantidade : undefined,
+    };
+  });
+  console.log(data);
 
   return (
     <div className="p-6">
