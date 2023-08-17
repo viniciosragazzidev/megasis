@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Header from "../tools/components/ui/header";
 import { Toaster } from "../tools/components/ui/toaster";
+import RedirectProvider from "../tools/components/authComp/RedirectProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,12 +19,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-br">
-      <body id="body" className={inter.className}>
-        <Header />
-        <Toaster />
+      <RedirectProvider>
+        <body id="body" className={inter.className}>
+          <Header />
+          <Toaster />
 
-        {children}
-      </body>
+          {children}
+        </body>
+      </RedirectProvider>
     </html>
   );
 }

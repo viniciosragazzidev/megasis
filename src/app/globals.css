@@ -92,7 +92,14 @@ body.overflow-hidden {
 .boxAdd.open {
   animation: open 0.5s ease forwards;
 }
-
+header.headerPrin {
+  width: 100vw;
+  height: 5rem;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 button.btnProChato {
   z-index: 1 !important;
 }

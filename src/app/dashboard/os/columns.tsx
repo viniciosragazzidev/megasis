@@ -12,26 +12,9 @@ import {
   DropdownMenuTrigger,
 } from "@/app/tools/components/ui/dropdown-menu";
 import { FaPlus, FaAngleUp } from "react-icons/fa";
-import { Equipamento } from "@/app/tools/utils/@types";
+import { FormData } from "@/app/tools/utils/@types";
 
-export type Payment = {
-  id: string;
-  nome: string;
-  contato: string;
-  nomeEq: string;
-  modeloEq: string;
-  marcaEq: string;
-  numeroSerieEq: string;
-  tecnico: string;
-  valorTec: number;
-  valorCob: number;
-  status: string;
-  imagem: File | null;
-  descricao: string;
-  acessorios: string;
-};
-
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<FormData>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -64,7 +47,7 @@ export const columns: ColumnDef<Payment>[] = [
     header: "Contato",
   },
   {
-    accessorKey: `nomeEq`,
+    accessorKey: `topEqNome`,
     header: ({ column }) => {
       return (
         <Button
@@ -78,11 +61,11 @@ export const columns: ColumnDef<Payment>[] = [
     },
   },
   {
-    accessorKey: "modeloEq",
+    accessorKey: "topEqModelo",
     header: "Modelo do Equipamento",
   },
   {
-    accessorKey: "tecnico",
+    accessorKey: "topEqTecnico",
     header: ({ column }) => {
       return (
         <Button
@@ -96,15 +79,15 @@ export const columns: ColumnDef<Payment>[] = [
     },
   },
   {
-    accessorKey: "status",
+    accessorKey: "topEqStatus",
     header: "Status",
   },
   {
-    accessorKey: "valorTec",
+    accessorKey: "topEqValorTec",
     header: "Valor Técnico",
   },
   {
-    accessorKey: "valorCob",
+    accessorKey: "topEqValorCob",
     header: "Valor Total",
   },
   {

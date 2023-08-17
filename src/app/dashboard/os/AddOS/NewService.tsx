@@ -1,37 +1,26 @@
-"use client";
-import { Input } from "@/app/tools/components/ui/input";
-
-import { format } from "date-fns";
-import { Button } from "@/app/tools/components/ui/button";
-import { Calendar } from "@/app/tools/components/ui/calendar";
+// Import statements (organized into categories)
+import React, {
+  useState,
+  ChangeEvent,
+  FormEvent,
+  useContext,
+  useEffect,
+} from "react";
 import { FaPlus, FaMinus, FaCalendar } from "react-icons/fa";
 import { AppContext } from "@/app/tools/context/AppContext";
 import { useToast } from "@/app/tools/components/ui/use-toast";
 import { cn } from "@/app/tools/libs";
-import { z } from "zod";
-
+import { Input } from "@/app/tools/components/ui/input";
+import { Button } from "@/app/tools/components/ui/button";
+import { Calendar } from "@/app/tools/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/app/tools/components/ui/popover";
-
-import React, {
-  ChangeEvent,
-  FormEvent,
-  useState,
-  useContext,
-  useEffect,
-} from "react";
-import { Equipamento } from "@/app/tools/utils/@types";
-
-interface FormData {
-  id: string;
-  nome: string;
-  contato: number[];
-
-  equipamentos: Equipamento[];
-}
+import { format } from "date-fns";
+import { z } from "zod";
+import { Equipamento, FormData } from "@/app/tools/utils/@types";
 
 const equipamentoSchema = z.object({
   nomeEq: z
@@ -50,7 +39,7 @@ const equipamentoSchema = z.object({
 // Define Zod schemas for your form fields
 const schema = z.object({
   nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  contato: z.array(
+  contatos: z.array(
     z.number().min(5, "Contato deve ter pelo menos 5 caracteres")
   ),
   equipamentos: z.array(equipamentoSchema.extend({})),
@@ -65,9 +54,25 @@ const NewService = ({
   const [formData, setFormData] = useState<FormData>({
     id: "",
     nome: "",
-    contato: [],
+    contato: 0,
+    contatos: [],
+    topEqNome: "",
+    topEqModelo: "",
+    topEqMarca: "",
+    topEqNumeroSerie: "",
+    topEqTecnico: "",
+    topEqValorTec: 0,
+    topEqValorCob: 0,
+    topEqStatus: "",
+    topEqImagem: "",
+    topEqDescricao: "",
+    topEqAcessorios: "",
+    topEqId: "",
+    quantidadeEq: 0,
+
     equipamentos: [
       {
+        id: "",
         nomeEq: "",
         modeloEq: "",
         marcaEq: "",
@@ -82,8 +87,10 @@ const NewService = ({
       },
     ],
   });
-
   const [errors, setErrors] = useState({}); // Inicialize sem erros
+  const [contatos, setContatos] = useState<number[]>([0]);
+  const { toast } = useToast();
+  const [date, setDate] = React.useState<Date>();
 
   const handleInputChange = (
     event: ChangeEvent<
@@ -129,12 +136,12 @@ const NewService = ({
     if (name === "contato" && index !== undefined) {
       // set value in obj by index in contatos
 
-      const copyFormDataContatos = [...formData.contato];
+      const copyFormDataContatos = [...formData.contatos];
       copyFormDataContatos[index] = Number(value);
 
       setFormData((prevFormData) => ({
         ...prevFormData,
-        contato: copyFormDataContatos,
+        contatos: copyFormDataContatos,
       }));
     }
     // Validate the field and update errors
@@ -151,19 +158,18 @@ const NewService = ({
     }));
   };
 
-  const [contatos, setContatos] = useState<number[]>([0]);
-
   const handleAddMoreContato = () => {
     if (contatos.length < 2) {
-      setContatos([Number(formData.contato[0]), 0]);
-      formData.contato = [Number(formData.contato[0]), 0];
+      setContatos([Number(formData.contatos[0]), 0]);
+      formData.contatos = [Number(formData.contatos[0]), 0];
     } else {
-      setContatos([Number(formData.contato[0])]);
+      setContatos([Number(formData.contatos[0])]);
     }
   };
 
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>([
     {
+      id: "",
       nomeEq: "",
       modeloEq: "",
       marcaEq: "",
@@ -181,6 +187,7 @@ const NewService = ({
     setEquipamentos([
       ...equipamentos,
       {
+        id: "",
         nomeEq: "",
         modeloEq: "",
         marcaEq: "",
@@ -197,6 +204,7 @@ const NewService = ({
     formData.equipamentos = [
       ...equipamentos,
       {
+        id: "",
         nomeEq: "",
         modeloEq: "",
         marcaEq: "",
@@ -213,52 +221,58 @@ const NewService = ({
     console.log(equipamentos);
   };
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const imageFile = event.target.files && event.target.files[0];
+    const imageFile = "";
     formData.equipamentos[0].imagem = imageFile || null;
   };
-  const { toast } = useToast();
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    const numericFormData = {
+
+    // Formate os dados do formulário
+    const formatedFormData = {
       ...formData,
+      contato: contatos[0],
+      topEqNome: formData.equipamentos[0].nomeEq,
+      topEqModelo: formData.equipamentos[0].modeloEq,
+      topEqMarca: formData.equipamentos[0].marcaEq,
+      topEqNumeroSerie: formData.equipamentos[0].numeroSerieEq,
+      topEqTecnico: formData.equipamentos[0].tecnico,
+      topEqValorTec: Number(formData.equipamentos[0].valorTec),
+      topEqValorCob: Number(formData.equipamentos[0].valorCob),
+      topEqStatus: formData.equipamentos[0].status,
+      topEqImagem: formData.equipamentos[0].imagem,
+      topEqDescricao: formData.equipamentos[0].descricao,
+      topEqAcessorios: formData.equipamentos[0].acessorios,
+      topEqId: formData.equipamentos[0].id,
+      quantidadeEq: formData.equipamentos.length,
       equipamentos: formData.equipamentos.map((equipamento) => ({
         ...equipamento,
         valorCob: Number(equipamento.valorCob),
         valorTec: Number(equipamento.valorTec),
       })),
     };
-    const validationResult = schema.safeParse(numericFormData);
 
+    // Valide os dados do formulário
+    const validationResult = schema.safeParse(formatedFormData);
+
+    const getDataCopyByLocalStorage = JSON.parse(
+      localStorage.getItem("data") || "[]"
+    );
+    // Se os dados forem válidos, insira-os no banco de dados
     if (validationResult.success) {
       setIsOpen(false);
-      console.log(formData);
+
+      getDataCopyByLocalStorage.push(formatedFormData);
+      localStorage.setItem("data", JSON.stringify(getDataCopyByLocalStorage));
+
       const DateAndHourFormated = format(new Date(), "dd/MM/yyyy HH:mm");
       toast({
         title: `${formData.nome} foi adicionado com sucesso ✅`,
         description: `⏳ Data e hora: ${DateAndHourFormated}`,
       });
-      setFormData({
-        id: "",
-        nome: "",
-        contato: [],
-        equipamentos: [
-          {
-            nomeEq: "",
-            modeloEq: "",
-            marcaEq: "",
-            numeroSerieEq: "",
-            tecnico: "",
-            valorTec: 0,
-            valorCob: 0,
-            status: "",
-            imagem: null,
-            descricao: "",
-            acessorios: "",
-          },
-        ],
-      });
+      reset();
     } else {
+      // Se os dados forem inválidos, mostre uma mensagem de erro
       console.log(validationResult.error.flatten());
       setErrors(validationResult.error.flatten()); // Use o método flatten para obter os erros em um objeto
       toast({
@@ -267,12 +281,12 @@ const NewService = ({
       });
     }
   };
-  const [date, setDate] = React.useState<Date>();
 
   const reset = () => {
     setContatos([0]);
     setEquipamentos([
       {
+        id: "",
         nomeEq: "",
         modeloEq: "",
         marcaEq: "",
@@ -289,9 +303,25 @@ const NewService = ({
     setFormData({
       id: "",
       nome: "",
-      contato: [],
+      contato: 0,
+      contatos: [0],
+      topEqNome: "",
+      topEqModelo: "",
+      topEqMarca: "",
+      topEqNumeroSerie: "",
+      topEqTecnico: "",
+      topEqValorTec: 0,
+      topEqValorCob: 0,
+      topEqStatus: "",
+      topEqImagem: "",
+      topEqDescricao: "",
+      topEqAcessorios: "",
+      topEqId: "",
+      quantidadeEq: 0,
+
       equipamentos: [
         {
+          id: "",
           nomeEq: "",
           modeloEq: "",
           marcaEq: "",
@@ -371,13 +401,42 @@ const NewService = ({
                       key={index}
                       name="contato"
                       className=""
-                      value={formData.contato[index]}
+                      value={formData.contatos[index]}
                       onChange={(e) => {
                         handleInputChange(e, index);
                       }}
                       placeholder=""
                     />
                   ))}
+                </div>
+              </div>
+            </div>
+            <div className=" flex flex-1 flex-col gap-2">
+              <label htmlFor="nome" className="text-gray-400 text-sm">
+                Documento
+              </label>
+              <Input
+                name="nome"
+                className=""
+                onChange={handleInputChange}
+                placeholder=""
+                value={formData.nome}
+              />
+            </div>
+            <div className=" flex flex-1 flex-col gap-2">
+              <div className="inputArea flex flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="contato" className="text-gray-400 text-sm">
+                    Data de Nascimento
+                  </label>
+                </div>
+                <div className="w-full h-9">
+                  <input
+                    type="date"
+                    name="nascimento"
+                    className=" w-full  bg-transparent border cursor-pointer outline-none border-gray-200 hover:bg-slate-100 hover:text-dark-bg-lv2 transition-all rounded px-2  h-full accent-slate-800"
+                    id="nascimento"
+                  />
                 </div>
               </div>
             </div>
@@ -404,7 +463,10 @@ const NewService = ({
             </div>
             {formData.equipamentos.map((equipamento, index) => (
               <>
-                <div className="inputArea grid grid-cols-2 max-sm:grid-cols-1 gap-4">
+                <div
+                  key={index}
+                  className="inputArea grid grid-cols-2 max-sm:grid-cols-1 gap-4"
+                >
                   <div className=" flex flex-1 flex-col gap-2">
                     <label htmlFor="nome" className="text-gray-400 text-sm">
                       Nome do Equipamento
